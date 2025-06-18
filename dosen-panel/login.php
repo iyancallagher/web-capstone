@@ -1,11 +1,9 @@
 <?php
-// session_start();
-// require "../koneksi.php";
+session_start();
+require "../koneksi.php";
 
 
 ?>
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,7 +12,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
     <link rel="stylesheet" href="../libraries/bootstrap/css/bootstrap.min.css">
-    <title>Login</title>
+    <title>Capstone Monitoring</title>
 </head>
 <body>
 <style>
@@ -36,24 +34,74 @@
     font-family: 'Times New Roman', Times, serif;
     margin-top: 5px;
 }
+.judul{
+    font-family: 'Times New Roman', Times, serif;
+}
 </style>
 <body>
     <div class="main d-flex flex-column justify-content-center align-items-center">
+    <div class="judul">
+            <h1>Login Dosen</h1>
+        </div>
         <div class="login-box p-5 shadow">
             <form action="" method="post">
                 <div>
                     <label for="username">Username</label>
-                    <input type="text" class="form-control" name="username" id="username">
+                    <input type="text" class="form-control" name="username" id="username" placeholder="Username anda">
                 </div>
-                <div>
-                    <label for="password" class="mt-2">Password</label>
-                    <input type="password" class="form-control" name="password" id="password">
-                </div>
+                <label for="password" class="mt-2">Password</label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" name="password" id="password" placeholder="Masukkan Password" required>
+                        <span class="input-group-text" style="cursor: pointer;">
+                            <i class="fa fa-eye" id="togglePasswordIcon"></i>
+                        </span>
+                    </div>
                 <div>
                     <button class="btn form-control mt-3" type="submit" name="loginbtn"><h5>login</h5></button>
                 </div>
             </form>
         </div>
+        <div class="mt-3">
+        <?php 
+            if(isset($_POST['loginbtn'])){
+                $username = htmlspecialchars($_POST['username']);
+                $password = htmlspecialchars($_POST['password']);
+
+                $query = mysqli_query($con, "SELECT * FROM dosen WHERE username='$username'");
+                $countdata = mysqli_num_rows($query);
+
+                if($countdata > 0){
+                    $data = mysqli_fetch_array($query);
+
+                    if($password == $data['password']){
+                        $_SESSION['username'] = $data['username'];
+                        $_SESSION['kd_dosen'] = $data['kd_dosen'];
+                        $_SESSION['login'] = true;
+                        header('Location: index.php');
+                        exit();
+                    } else {
+                        echo '<div class="alert alert-warning" role="alert">Periksa kembali password dan username anda.</div>';
+                    }
+                } else {
+                    echo '<div class="alert alert-warning" role="alert">Username anda tidak ditemukan.</div>';
+                }
+            }
+            ?>
+        </div>
     </div>
+    <script>
+    const togglePasswordIcon = document.querySelector('#togglePasswordIcon');
+    const password = document.querySelector('#password');
+
+    togglePasswordIcon.addEventListener('click', function () {
+        // Toggle the type attribute
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        
+        // Toggle the icon class
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+    });
+</script>
 </body>
 </html>

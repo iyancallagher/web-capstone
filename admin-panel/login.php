@@ -1,6 +1,6 @@
 <?php
-// session_start();
-// require "../koneksi.php";
+session_start();
+require "../koneksi.php";
 
 
 ?>
@@ -14,7 +14,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
     <link rel="stylesheet" href="../libraries/bootstrap/css/bootstrap.min.css">
-    <title>Login</title>
+    <title>Capstone Monitoring</title>
 </head>
 <body>
 <style>
@@ -35,52 +35,98 @@
     color: white;
     font-family: 'Times New Roman', Times, serif;
 }
+.judul{
+    font-family: 'Times New Roman', Times, serif;
+}
 </style>
 <body>
     <div class="main d-flex flex-column justify-content-center align-items-center">
+    <div class="judul">
+        </div>
+        <h1>Login Admin</h1>
         <div class="login-box p-5 shadow">
             <form action="" method="post">
                 <div>
                     <label for="username">Username</label>
-                    <input type="text" class="form-control" name="username" id="username">
+                    <input type="text" class="form-control" name="username" id="username" placeholder="Masukkan Password" >
                 </div>
-                <div>
-                    <label for="password" class="mt-2">Password</label>
-                    <input type="password" class="form-control" name="password" id="password">
-                </div>
+                <label for="password" class="mt-2">Password</label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" name="password" id="password" placeholder="Masukkan Password" required>
+                        <span class="input-group-text" style="cursor: pointer;">
+                            <i class="fa fa-eye" id="togglePasswordIcon"></i>
+                        </span>
+                    </div>
                 <div>
                     <button class="btn form-control mt-3" type="submit" name="loginbtn"><h5>login</h5></button>
                 </div>
             </form>
         </div>
         <div class="mt-3">
-                <?php 
-                if(isset($_POST['loginbtn'])){
-                    $username = htmlspecialchars($_POST['username']);
-                    $password = htmlspecialchars($_POST['password']);
+        <?php
+if (isset($_POST['loginbtn'])) {
+    // Securely retrieve the form data
+    $username = htmlspecialchars($_POST['username']);
+    $password = htmlspecialchars($_POST['password']);
 
-                    $query = mysqli_query($con, "SELECT * FROM admins WHERE username='$username'");
-                    $countdata = mysqli_num_rows($query);
-                    $data = mysqli_fetch_array($query);
+    // Query to select user from the database
+    $query = mysqli_query($con, "SELECT * FROM admin WHERE username='$username'");
+    
+    // Check for query errors
+    if (!$query) {
+        die('Query failed: ' . mysqli_error($con));
+    }
+    
+    $countdata = mysqli_num_rows($query);
+    $data = mysqli_fetch_array($query);
 
-                    if($countdata>0){
+    // Check if a user was found
+    if ($countdata > 0) {
+        // Check if the password matches the one in the database
+        if ($password === $data['password']) {
+            // Correct password, start session
+            $_SESSION['username'] = $data['username'];
+            $_SESSION['id'] = $data['id'];
+            $_SESSION['login'] = true;
 
-                        if($_SESSION['password'] =  $data['password']){
-                        $_SESSION['username'] = $data['username'];
-                        $_SESSION['login'] = true;
-                        header('location: index.php');
-                        }else{
-                            ?>
-                            <div class="alert alert-warning" role="alert">
-                                periksa kembali password dan username anda
-                            <?php
-                        }
-                    }
-                }
+            // Regenerate session ID to prevent session fixation
+            session_regenerate_id(true);
 
-                ?>
+            header('Location: index.php');
+            exit();
+        } else {
+            // Incorrect password
+            ?>
+            <div class="alert alert-warning" role="alert">
+                Periksa kembali password dan username Anda.
+            </div>
+            <?php
+        }
+    } else {
+        // User not found
+        ?>
+        <div class="alert alert-warning" role="alert">
+            Pengguna tidak ditemukan.
         </div>
-
+        <?php
+    }
+}
+?>
     </div>
+    </div>
+    <script>
+    const togglePasswordIcon = document.querySelector('#togglePasswordIcon');
+    const password = document.querySelector('#password');
+
+    togglePasswordIcon.addEventListener('click', function () {
+        // Toggle the type attribute
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        
+        // Toggle the icon class
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+    });
+</script>
 </body>
 </html>

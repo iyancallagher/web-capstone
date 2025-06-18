@@ -1,0 +1,20 @@
+    .breadcrumb {
+    background-color: transparent;
+    padding: 0;
+    margin-bottom: 1rem;
+    margin-top:20px;
+    }
+    .breadcrumb-item a {
+    color: #6c757d;
+    text-decoration: none;
+    }
+    .breadcrumb-item.active {
+    color: #000;
+    }
+    .header {
+    background: linear-gradient(90deg, #ff66cc 0%, #6600cc 100%);
+    color: white;
+    padding:2rem;
+    text-align: start;
+    border-radius:10px;
+    }

@@ -4,8 +4,11 @@ require 'session.php';
 require '../koneksi.php';
 
 // Query untuk mengambil data mahasiswa dan mengurutkan berdasarkan kelas (dari A hingga E)
-$query = mysqli_query($con, "SELECT * FROM mahasiswa ORDER BY kelas ASC");
-$jumlahDataDosen = mysqli_num_rows($query);
+$query = mysqli_query($con, "SELECT pendaftar_mahasiswa.*, mahasiswa.nama 
+                             FROM pendaftar_mahasiswa 
+                             INNER JOIN mahasiswa ON pendaftar_mahasiswa.nim = mahasiswa.nim");
+
+$jumlahDataMahasiswa = mysqli_num_rows($query);
 
 ?>
 
@@ -111,19 +114,13 @@ $jumlahDataDosen = mysqli_num_rows($query);
                     <tr>
                         <th>No.</th>
                         <th>Nama</th>
-                        <th>Prodi</th>
                         <th>NIM</th>
-                        <th>Nomor HP</th>
-                        <th>Jurusan</th>
-                        <th>Kelas</th>
-                        <th>Foto KTM</th>
-                        <th>Password</th>
-                        <th>Action</th>
+                        <th>status</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php
-                    if($jumlahDataDosen==0){
+                    if($jumlahDataMahasiswa ==0){
                         ?>
                             <tr>
                                 <td colspan=5 class="text-center"> Data mahasiswa tidak tersedia</td>
@@ -136,41 +133,18 @@ $jumlahDataDosen = mysqli_num_rows($query);
                                 <tr>
                                     <td><?php echo $jumlah; ?></td>
                                     <td><?php echo $data['nama']; ?></td>
-                                    <td><?php echo $data['prodi']; ?></td>
                                     <td><?php echo $data['nim']; ?></td>
-                                    <td><?php echo $data['nomor_hp']; ?></td>
-                                    <td><?php echo $data['jurusan']; ?></td>
-                                    <td><?php echo $data['kelas']; ?></td>
-                                    <td><img src="../img/foto_ktm/<?php echo $data['foto_ktm']?>" alt="" width="100"></td>
-                                    <td><?php echo $data['password']; ?></td>
-                                    <td>
-                                        <a href="#" class="btn btn-danger" onclick="
-                                            Swal.fire({
-                                                title: 'Apakah Anda Yakin ?',
-                                                text: 'Anda mungkin tidak bisa mengembalikan datanya',
-                                                icon: 'warning',
-                                                showCancelButton: true,
-                                                confirmButtonText: 'Hapus Mahasiswa',
-                                                cancelButtonText: 'Batal Hapus'
-                                            }).then((result) => {
-                                                if (result.isConfirmed) {
-                                                    fetch('mahasiswa.php?hapus=<?php echo $data['id']?>', { method: 'GET' })
-                                                        .then(response => response.text())
-                                                        .then(data => {
-                                                            if (data.includes('success')) {
-                                                                Swal.fire('Deleted!', 'Your item has been deleted.', 'success')
-                                                                    .then(() => location.reload());
-                                                            } else {
-                                                                Swal.fire('Error!', 'There was an issue deleting your item.', 'error');
-                                                            }
-                                                        })
-                                                        .catch(error => Swal.fire('Error!', 'There was an error processing your request.', 'error'));
-                                                }
-                                            });
-                                            return false;
-                                        ">
-                                            <i class="fa-solid fa-trash"></i> 
-                                        </a>
+                                    <td>  <?php 
+                                        $statusClass = '';
+                                        if ($data['status'] == 'Belum Diperiksa') {
+                                            $statusClass = 'bg-warning text-dark';  // Latar belakang kuning dengan teks gelap
+                                        } elseif ($data['status'] == 'Belum disetujui') {
+                                            $statusClass = 'bg-danger text-white';   // Latar belakang merah dengan teks putih
+                                        } elseif ($data['status'] == 'Disetujui') {
+                                            $statusClass = 'bg-success text-white';  // Latar belakang hijau dengan teks putih
+                                        }
+                                        ?>
+                                        <span class="stat ms-2 <?=$statusClass;?> p-2 rounded">Selesai</span>
                                     </td>
                                 </tr>
                             <?php
